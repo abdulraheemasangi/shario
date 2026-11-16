@@ -7,6 +7,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build & Test Android App
@@ -21,7 +24,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
@@ -32,9 +37,33 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Upload Release APK
+      - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Shario-Release-APK
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "Shario v1.0.0 — Fast Sharing. Zero Hassle."
+          body: |
+            ### 🚀 Shario v1.0.0 — Fast Sharing. Zero Hassle.
+            
+            100% Bit-for-Bit Original Phone-to-Phone File Sharing (Ad-Free & Lossless).
+            
+            #### 📥 Direct APK Download
+            - **[app-release.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk)**
+            
+            #### Features:
+            - **Zero Quality Loss**: Photos, 4K videos, audio, and documents transferred without re-encoding or EXIF/GPS redaction.
+            - **SHA-256 Verified**: Cryptographic integrity validation with "Verified ✓" badge.
+            - **Fast Offline Transfers**: Wi-Fi Direct & Local Hotspot high-speed streaming.
+            - **Split APKs**: Complete App Bundle extraction and atomic installation.
+            - **E2E Encryption**: AES-256-GCM cipher with QR code key exchange.
+          files: app/build/outputs/apk/release/app-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

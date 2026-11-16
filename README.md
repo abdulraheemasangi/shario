@@ -3,10 +3,21 @@
 >
 > **100% Bit-for-Bit Original Phone-to-Phone File Sharing**
 
+[![Download Release APK](https://img.shields.io/badge/Download-Release%20APK%20(v1.0.0)-brightgreen?style=for-the-badge&logo=android)](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk)
+[![Releases](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/abdulraheemasangi/shario/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/abdulraheemasangi/shario/build-apk.yml?branch=main&style=for-the-badge)](https://github.com/abdulraheemasangi/shario/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%2010--15-brightgreen.svg)]()
 [![Quality](https://img.shields.io/badge/Quality-Byte--for--Byte%20Identical-success.svg)]()
-[![Ad-Free](https://img.shields.io/badge/Ads-Zero%20(100%25%20FOSS)-orange.svg)]()
+
+---
+
+### 📲 Download Links
+- 📥 **[Direct Download: app-release.apk (Latest v1.0.0)](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk)**
+- 📦 **[GitHub Releases Page & Version History](https://github.com/abdulraheemasangi/shario/releases)**
+- ⚙️ **[Automated CI/CD Build Artifacts](https://github.com/abdulraheemasangi/shario/actions)**
+
+---
 
 Shario is a high-throughput, offline file transfer app for Android engineered to transfer files, photos, 4K videos, lossless audio, documents, and split APK bundles **without compression, without resizing, and without metadata stripping**.
 
