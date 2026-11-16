@@ -34,8 +34,8 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew test --stacktrace
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease --stacktrace
+      - name: Build APKs
+        run: ./gradlew assembleDebug assembleRelease --stacktrace
 
       - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
@@ -44,12 +44,20 @@ jobs:
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
+      - name: Upload All APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shario-All-APKs
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: warn
+
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0
           name: "Shario v1.0.0 — Fast Sharing. Zero Hassle."
+          make_latest: true
           body: |
             ### 🚀 Shario v1.0.0 — Fast Sharing. Zero Hassle.
             
