@@ -43,6 +43,14 @@ jobs:
           echo '```text' >> $GITHUB_STEP_SUMMARY
           tail -n 120 build.log >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          python3 -c "
+          with open('build.log', errors='ignore') as f:
+              lines = f.readlines()
+          for l in lines[-35:]:
+              l = l.strip().replace('%', '%25').replace('\r', '').replace('\n', '%0A')
+              if l:
+                  print(f'::error title=GradleLog::{l}')
+          "
 
       - name: Run Unit Tests
         run: ./gradlew test --stacktrace

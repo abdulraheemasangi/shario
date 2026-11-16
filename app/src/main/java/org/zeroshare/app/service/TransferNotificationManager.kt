@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import org.zeroshare.app.R
-import org.zeroshare.app.ZeroShareApplication
+import org.zeroshare.app.SharioApplication
 import org.zeroshare.app.core.extensions.FormatExtensions
 import org.zeroshare.app.domain.model.TransferSessionState
 import org.zeroshare.app.presentation.MainActivity

@@ -8,7 +8,7 @@ import android.os.Build
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-open class SharioApplication : Application() {
+class SharioApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
