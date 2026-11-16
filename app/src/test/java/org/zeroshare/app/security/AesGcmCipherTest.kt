@@ -35,8 +35,11 @@ class AesGcmCipherTest {
         // Flip a bit in the ciphertext to simulate tampering or bit-flip corruption
         encryptedPayload[encryptedPayload.size - 1] = (encryptedPayload[encryptedPayload.size - 1].toInt() xor 0x01).toByte()
 
-        assertThrows(Exception::class.java) {
+        try {
             cipher.decrypt(encryptedPayload)
+            org.junit.Assert.fail("Expected Exception when decrypting tampered payload")
+        } catch (e: Exception) {
+            // Expected
         }
     }
 

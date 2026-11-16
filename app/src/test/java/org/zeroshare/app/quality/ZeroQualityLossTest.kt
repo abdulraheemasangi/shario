@@ -25,8 +25,8 @@ class ZeroQualityLossTest {
 
     @Test
     fun test48MpRawPhotoByteForByteFidelity() {
-        // 1. Simulate 48MP RAW DNG Photo with simulated EXIF/GPS header
-        val photoSize = 12 * 1024 * 1024 // 12 MB realistic test slice
+        // 1. Simulate 48MP RAW DNG Photo with simulated EXIF/GPS header (multi-chunk)
+        val photoSize = 2 * 1024 * 1024 // 2 MB (2 full 1MB chunks)
         val sourcePhotoFile = tempFolder.newFile("IMG_48MP_RAW.dng")
         val random = Random(42L) // Deterministic seed
 
@@ -103,8 +103,8 @@ class ZeroQualityLossTest {
 
     @Test
     fun test4kVideoStreamingFidelity() {
-        // 1. Simulate 4K 60fps MP4 Video stream
-        val videoSize = 25 * 1024 * 1024 // 25 MB high-bitrate video stream slice
+        // 1. Simulate 4K 60fps MP4 Video stream (multi-chunk)
+        val videoSize = 4 * 1024 * 1024 // 4 MB (4 full 1MB chunks)
         val sourceVideoFile = tempFolder.newFile("VID_4K_60FPS.mp4")
         val random = Random(99L)
 

@@ -53,8 +53,11 @@ class ProtocolFramingTest {
         dos.writeInt(0)
 
         val dis = DataInputStream(ByteArrayInputStream(baos.toByteArray()))
-        assertThrows(IOException::class.java) {
+        try {
             ProtocolPacket.readFrom(dis)
+            org.junit.Assert.fail("Expected IOException for invalid magic byte")
+        } catch (e: IOException) {
+            // Expected
         }
     }
 }
