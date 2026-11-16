@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shario</string>
+    <string name="tagline">Fast Sharing. Zero Hassle.</string>
+
+    <!-- Navigation / Dashboard -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="action_send">Send</string>
+    <string name="action_receive">Receive</string>
+    <string name="action_select_files">Select Files</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_open_file">Open</string>
+    <string name="action_scan_qr">Scan QR Code</string>
+
+    <!-- Categories -->
+    <string name="category_photos">Photos</string>
+    <string name="category_videos">Videos</string>
+    <string name="category_audio">Audio</string>
+    <string name="category_docs">Documents</string>
+    <string name="category_apps">Installed Apps</string>
+    <string name="category_files">Files &amp; Folders</string>
+
+    <!-- Quality Invariants -->
+    <string name="badge_verified">Verified ✓</string>
+    <string name="badge_original">Original Quality 100%</string>
+    <string name="sha256_match">SHA-256 Checksum Verified</string>
+    <string name="sha256_label">SHA-256:</string>
+
+    <!-- Discovery & Connection -->
+    <string name="discovery_searching">Searching for nearby receivers…</string>
+    <string name="discovery_receiver_ready">Ready to receive files</string>
+    <string name="qr_instructions">Scan this QR code from the sender phone to establish an encrypted offline connection.</string>
+    <string name="connection_direct">Wi-Fi Direct Connected</string>
+    <string name="connection_hotspot">Local Hotspot Connected</string>
+    <string name="connection_lan">Local Network Connected</string>
+
+    <!-- Transfer Live Status -->
+    <string name="status_preparing">Preparing stream…</string>
+    <string name="status_transferring">Transferring files…</string>
+    <string name="status_verifying">Verifying SHA-256 digest…</string>
+    <string name="status_completed">Transfer Completed Successfully</string>
+    <string name="status_failed">Transfer Failed</string>
+    <string name="status_paused">Transfer Paused</string>
+
+    <!-- Metrics -->
+    <string name="speed_format">%.2f MB/s</string>
+    <string name="eta_format">ETA: %s</string>
+    <string name="file_progress_format">%d / %d Files (%s / %s)</string>
+
+    <!-- Permissions -->
+    <string name="permission_title">Permissions Required</string>
+    <string name="permission_desc">Shario requires storage, location/nearby devices, and camera access to discover peers and transfer files with full original EXIF metadata without compression.</string>
+    <string name="grant_permissions">Grant Permissions</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_name">File Transfer</string>
+    <string name="notif_channel_desc">Active file transfer progress and controls</string>
+    <string name="notif_transferring_title">Transferring: %s</string>
+</resources>

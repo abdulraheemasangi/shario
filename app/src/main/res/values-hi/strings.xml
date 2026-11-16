@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shario</string>
+    <string name="tagline">फास्ट शेयरिंग। ज़ीरो परेशानी।</string>
+
+    <!-- Navigation / Dashboard -->
+    <string name="nav_home">होम</string>
+    <string name="nav_history">इतिहास</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <string name="action_send">भेजें</string>
+    <string name="action_receive">प्राप्त करें</string>
+    <string name="action_select_files">फ़ाइलें चुनें</string>
+    <string name="action_cancel">रद्द करें</string>
+    <string name="action_pause">रोकें</string>
+    <string name="action_resume">फिर से शुरू करें</string>
+    <string name="action_retry">पुनः प्रयास करें</string>
+    <string name="action_open_file">खोलें</string>
+    <string name="action_scan_qr">QR कोड स्कैन करें</string>
+
+    <!-- Categories -->
+    <string name="category_photos">फ़ोटो</string>
+    <string name="category_videos">वीडियो</string>
+    <string name="category_audio">संगीत / ऑडियो</string>
+    <string name="category_docs">दस्तावेज़</string>
+    <string name="category_apps">इंस्टॉल किए गए ऐप्स</string>
+    <string name="category_files">फ़ाइलें एवं फ़ोल्डर</string>
+
+    <!-- Quality Invariants -->
+    <string name="badge_verified">सत्यापित ✓</string>
+    <string name="badge_original">100% मूल गुणवत्ता</string>
+    <string name="sha256_match">SHA-256 चेकसम सत्यापित</string>
+    <string name="sha256_label">SHA-256:</string>
+
+    <!-- Discovery & Connection -->
+    <string name="discovery_searching">आस-पास के प्राप्तकर्ताओं की खोज की जा रही है…</string>
+    <string name="discovery_receiver_ready">फ़ाइलें प्राप्त करने के लिए तैयार</string>
+    <string name="qr_instructions">सुरक्षित ऑफ़लाइन कनेक्शन स्थापित करने के लिए भेजने वाले फ़ोन से इस QR कोड को स्कैन करें।</string>
+    <string name="connection_direct">Wi-Fi Direct कनेक्ट हुआ</string>
+    <string name="connection_hotspot">लोकल हॉटस्पॉट कनेक्ट हुआ</string>
+    <string name="connection_lan">लोकल नेटवर्क कनेक्ट हुआ</string>
+
+    <!-- Transfer Live Status -->
+    <string name="status_preparing">स्ट्रीम तैयार की जा रही है…</string>
+    <string name="status_transferring">फ़ाइलें स्थानांतरित हो रही हैं…</string>
+    <string name="status_verifying">SHA-256 डाइजेस्ट सत्यापित किया जा रहा है…</string>
+    <string name="status_completed">स्थानांतरण सफलतापूर्वक पूरा हुआ</string>
+    <string name="status_failed">स्थानांतरण विफल रहा</string>
+    <string name="status_paused">स्थानांतरण रुका हुआ है</string>
+
+    <!-- Metrics -->
+    <string name="speed_format">%.2f MB/s</string>
+    <string name="eta_format">अनुमानित समय: %s</string>
+    <string name="file_progress_format">%d / %d फ़ाइलें (%s / %s)</string>
+
+    <!-- Permissions -->
+    <string name="permission_title">अनुमतियाँ आवश्यक हैं</string>
+    <string name="permission_desc">फ़ाइलों को बिना किसी संपीड़न और पूर्ण मूल EXIF मेटाडेटा के साथ स्थानांतरित करने के लिए Shario को स्टोरेज, आस-पास के डिवाइस और कैमरा अनुमति की आवश्यकता है।</string>
+    <string name="grant_permissions">अनुमति दें</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_name">फ़ाइल स्थानांतरण</string>
+    <string name="notif_channel_desc">सक्रिय फ़ाइल स्थानांतरण प्रगति और नियंत्रण</string>
+    <string name="notif_transferring_title">स्थानांतरित हो रहा है: %s</string>
+</resources>

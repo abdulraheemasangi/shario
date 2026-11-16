@@ -1,0 +1,24 @@
+# Android Gradle / Studio ignore
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.aab
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services
+google-services.json
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
