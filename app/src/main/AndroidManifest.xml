@@ -37,6 +37,11 @@
     <!-- Android 14+ Partial Access -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
+    <!-- All Files Access for PDF, Excel, Zip, Documents across all folders on Android 11+ -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
     <!-- CRITICAL FOR ZERO LOSS: Preserve GPS coordinates in photo/video EXIF on Android 10+ -->
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
 
@@ -45,10 +50,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Camera for QR Code Pairing -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
     <uses-feature android:name="android.hardware.wifi.direct" android:required="true" />
 
     <!-- Required on Android 11+ (API 30+) to enumerate installed apps for APK sharing -->

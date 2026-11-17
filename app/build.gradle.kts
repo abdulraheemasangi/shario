@@ -14,12 +14,27 @@ android {
         applicationId = "org.zeroshare.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    base {
+        archivesName.set("Shario")
+    }
+
+    applicationVariants.all {
+        outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            if (buildType.name == "release") {
+                output?.outputFileName = "Shario.apk"
+            } else {
+                output?.outputFileName = "Shario-debug.apk"
+            }
         }
     }
 
@@ -81,8 +96,9 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // QR Code Engine & Scanner
+    // QR Code Engine & Scanner (Google ML Kit + CameraX)
     implementation(libs.zxing.core)
+    implementation(libs.mlkit.barcode.scanning)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)

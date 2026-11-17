@@ -28,20 +28,16 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.AudioFile
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.VideoFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -49,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,7 +54,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,8 +61,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.zeroshare.app.R
-import org.zeroshare.app.core.extensions.FormatExtensions
-import org.zeroshare.app.domain.model.ItemCategory
+import org.zeroshare.app.core.util.FormatExtensions
 import org.zeroshare.app.domain.model.ShareableItem
 import org.zeroshare.app.presentation.components.GlassCard
 import org.zeroshare.app.presentation.components.ItemThumbnail
@@ -107,6 +102,17 @@ fun FilePickerScreen(
     val totalSelectedBytes = selectedItems.values.sumOf { it.size }
     val totalAllItems = photos.size + videos.size + audio.size + documents.size + apps.size
 
+    val availableFolders = remember(currentList) {
+        val folders = currentList.map { it.folderName }.filter { it.isNotBlank() }.distinct().sorted()
+        if (folders.size > 1) listOf("All Folders") + folders else emptyList()
+    }
+    var selectedFolder by remember(selectedTabIndex) { mutableStateOf("All Folders") }
+
+    val displayedList = remember(currentList, selectedFolder, availableFolders) {
+        if (selectedFolder == "All Folders" || availableFolders.isEmpty()) currentList
+        else currentList.filter { it.folderName == selectedFolder }
+    }
+
     LiquidGlassBackground {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -115,7 +121,7 @@ fun FilePickerScreen(
                     .statusBarsPadding()
                     .padding(horizontal = 18.dp)
             ) {
-                // Apple-style Glass Top Bar with Safe Inset Spacing
+                // Top Bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -158,22 +164,22 @@ fun FilePickerScreen(
                         )
                     }
 
-                    if (currentList.isNotEmpty()) {
+                    if (displayedList.isNotEmpty()) {
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(Color(0x18FFFFFF))
                                 .clickable {
-                                    val allSelected = currentList.all { selectedItems.containsKey(it.id) }
+                                    val allSelected = displayedList.all { selectedItems.containsKey(it.id) }
                                     if (allSelected) {
-                                        currentList.forEach { selectedItems.remove(it.id) }
+                                        displayedList.forEach { selectedItems.remove(it.id) }
                                     } else {
-                                        currentList.forEach { selectedItems[it.id] = it }
+                                        displayedList.forEach { selectedItems[it.id] = it }
                                     }
                                 }
                                 .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
-                            val allSelected = currentList.all { selectedItems.containsKey(it.id) }
+                            val allSelected = displayedList.all { selectedItems.containsKey(it.id) }
                             Text(
                                 text = if (allSelected) "Deselect" else "Select All",
                                 fontSize = 12.sp,
@@ -184,7 +190,7 @@ fun FilePickerScreen(
                     }
                 }
 
-                // Apple-style Frosted Segmented Pill Switcher
+                // Apple-style Frosted Segmented Category Switcher
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
@@ -209,7 +215,10 @@ fun FilePickerScreen(
                                             SolidColor(Color.Transparent)
                                         }
                                     )
-                                    .clickable { selectedTabIndex = index }
+                                    .clickable {
+                                        selectedTabIndex = index
+                                        selectedFolder = "All Folders"
+                                    }
                                     .padding(horizontal = 14.dp, vertical = 8.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -224,16 +233,56 @@ fun FilePickerScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                // Folder Filter Chips Bar (Grouped by Folder / Album)
+                if (availableFolders.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(availableFolders) { folder ->
+                            val isFolderSelected = folder == selectedFolder
+                            val count = if (folder == "All Folders") currentList.size else currentList.count { it.folderName == folder }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(
+                                        if (isFolderSelected) Color(0x33007AFF) else Color(0x14FFFFFF)
+                                    )
+                                    .border(
+                                        1.dp,
+                                        if (isFolderSelected) IosCyan.copy(alpha = 0.8f) else Color(0x24FFFFFF),
+                                        RoundedCornerShape(14.dp)
+                                    )
+                                    .clickable { selectedFolder = folder }
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Folder,
+                                        contentDescription = null,
+                                        tint = if (isFolderSelected) IosCyan else Color(0xCCEBEBF5),
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "$folder ($count)",
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isFolderSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isFolderSelected) Color.White else Color(0xBBEBEBF5)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
 
-                // Content Area: File List OR Permission Required Liquid Glass Card
-                if (!hasPermission || (currentList.isEmpty() && totalAllItems == 0)) {
-                    // Problem 3 Fix: Re-request file access with direct actions
-                    PermissionRequiredCard(
-                        onRequestPermissions = onRequestPermissions,
-                        onOpenSettings = onOpenSettings
-                    )
-                } else if (currentList.isEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Content View
+                if (totalAllItems == 0 && hasPermission) {
+                    // Loading State
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -241,11 +290,57 @@ fun FilePickerScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(
+                                color = IosCyan,
+                                modifier = Modifier.size(36.dp),
+                                strokeWidth = 3.dp
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
                             Text(
-                                text = "No items in this category",
+                                text = "Loading files and folders...",
+                                color = Color(0xCCEBEBF5),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                } else if (!hasPermission && totalAllItems == 0) {
+                    PermissionRequiredCard(
+                        onRequestPermissions = onRequestPermissions,
+                        onOpenSettings = onOpenSettings
+                    )
+                } else if (displayedList.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.Folder,
+                                contentDescription = null,
+                                tint = Color(0x44FFFFFF),
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = if (selectedFolder == "All Folders") "No files found in this category" else "No files in $selectedFolder",
                                 color = Color(0x88EBEBF5),
                                 fontSize = 14.sp
                             )
+                            if (selectedFolder != "All Folders") {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(Color(0x22FFFFFF))
+                                        .clickable { selectedFolder = "All Folders" }
+                                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                                ) {
+                                    Text("Show All Folders", color = IosCyan, fontSize = 13.sp)
+                                }
+                            }
                         }
                     }
                 } else {
@@ -255,7 +350,7 @@ fun FilePickerScreen(
                             .fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(currentList, key = { it.id }) { item ->
+                        items(displayedList, key = { it.id }) { item ->
                             val isSelected = selectedItems.containsKey(item.id)
                             LiquidGlassFileRow(
                                 item = item,
@@ -267,13 +362,13 @@ fun FilePickerScreen(
                             )
                         }
                         item {
-                            Spacer(modifier = Modifier.height(100.dp)) // Extra space for floating dock
+                            Spacer(modifier = Modifier.height(100.dp))
                         }
                     }
                 }
             }
 
-            // Floating Liquid Glass Action Dock at the bottom
+            // Floating Bottom Action Dock
             AnimatedVisibility(
                 visible = selectedItems.isNotEmpty(),
                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
@@ -394,7 +489,7 @@ private fun PermissionRequiredCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Shario requires media and storage access to transfer photos, 4K videos, audio, and APKs with 100% original quality without compression.",
+                    text = "Shario requires storage access to transfer photos, 4K videos, audio, and documents with 100% original quality without compression.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = Color(0xBBEBEBF5),
                         fontSize = 13.sp,
@@ -507,6 +602,23 @@ private fun LiquidGlassFileRow(
                         fontSize = 12.sp,
                         color = Color(0xAAEBEBF5)
                     )
+
+                    if (item.folderName.isNotBlank() && item.folderName != "Internal Storage") {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0x1AFFFFFF))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = item.folderName,
+                                fontSize = 10.sp,
+                                color = Color(0xCCEBEBF5)
+                            )
+                        }
+                    }
+
                     if (item.isAppBundle) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(

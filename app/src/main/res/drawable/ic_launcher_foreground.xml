@@ -3,7 +3,23 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Send Arrow (Up-Right) Cyan -->
+    <path
+        android:strokeColor="#64D2FF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M42,60 L64,38" />
+    <path
+        android:fillColor="#64D2FF"
+        android:pathData="M52,38 L65,38 L65,51 Z" />
+
+    <!-- Receive Arrow (Down-Left) White -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M66,48 L44,70" />
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,24 L30,48 L46,48 L46,84 L62,84 L62,48 L78,48 Z" />
+        android:pathData="M56,70 L43,70 L43,57 Z" />
 </vector>

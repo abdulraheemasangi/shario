@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import java.util.EnumMap
 
 @Composable
@@ -27,13 +28,13 @@ fun QrCodeView(
     modifier: Modifier = Modifier
 ) {
     val bitmap = remember(content) {
-        generateQrBitmap(content, 512, 512)
+        generateQrBitmap(content, 600, 600)
     }
 
     Box(
         modifier = modifier
             .size(sizeDp.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(Color.White)
             .padding(16.dp),
         contentAlignment = Alignment.Center
@@ -51,10 +52,12 @@ fun QrCodeView(
 private fun generateQrBitmap(content: String, width: Int, height: Int): Bitmap? {
     return try {
         val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java).apply {
-            put(EncodeHintType.MARGIN, 1)
+            put(EncodeHintType.MARGIN, 3)
+            put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M)
+            put(EncodeHintType.CHARACTER_SET, "UTF-8")
         }
         val bitMatrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints)
-        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         for (x in 0 until width) {
             for (y in 0 until height) {
                 bmp.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)

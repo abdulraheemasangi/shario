@@ -25,6 +25,7 @@ data class ShareableItem(
     val category: ItemCategory,
     val lastModified: Long = System.currentTimeMillis(),
     val relativePath: String? = null,
+    val folderName: String = "Internal Storage",
     val packageName: String? = null, // Set for installed apps
     val isAppBundle: Boolean = false,
     val splitApkUris: List<Uri> = emptyList() // Base + Split APKs
