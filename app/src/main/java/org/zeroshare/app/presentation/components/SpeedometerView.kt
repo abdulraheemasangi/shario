@@ -93,7 +93,7 @@ fun SpeedometerView(
         Spacer(modifier = Modifier.height(16.dp))
 
         LinearProgressIndicator(
-            progress = { animatedProgress },
+            progress = animatedProgress,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(10.dp)

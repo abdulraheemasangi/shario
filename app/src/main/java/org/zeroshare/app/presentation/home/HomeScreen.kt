@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CallReceived
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -115,7 +115,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Shield,
+                            imageVector = Icons.Default.Security,
                             contentDescription = null,
                             tint = SuccessGreen,
                             modifier = Modifier.size(24.dp)
@@ -156,7 +156,7 @@ fun HomeScreen(
                 ActionCard(
                     title = stringResource(R.string.action_receive),
                     subtitle = "Accept incoming files",
-                    icon = Icons.Default.CallReceived,
+                    icon = Icons.Default.FileDownload,
                     gradient = Brush.linearGradient(listOf(SuccessGreen, Color(0xFF009624))),
                     modifier = Modifier.weight(1f),
                     onClick = onNavigateToReceive

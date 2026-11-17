@@ -39,17 +39,24 @@ jobs:
       - name: Report Build Failure Summary
         if: failure()
         run: |
-          echo "## ❌ Build Failure Log (Last 120 lines)" >> $GITHUB_STEP_SUMMARY
+          echo "## ❌ Build Failure Diagnostics" >> $GITHUB_STEP_SUMMARY
+          echo "### Compiler Errors" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
-          tail -n 120 build.log >> $GITHUB_STEP_SUMMARY
+          grep -E "e: |error:|FAILED|FAILURE:" build.log | head -n 50 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### Last 100 Log Lines" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          tail -n 100 build.log >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           python3 -c "
           with open('build.log', errors='ignore') as f:
               lines = f.readlines()
-          for l in lines[-35:]:
-              l = l.strip().replace('%', '%25').replace('\r', '').replace('\n', '%0A')
-              if l:
-                  print(f'::error title=GradleLog::{l}')
+          errs = [l.strip() for l in lines if any(k in l for k in ['e: ', 'error:', 'AAPT:'])]
+          if not errs:
+              errs = [l.strip() for l in lines[-30:] if l.strip()]
+          for l in errs[:15]:
+              l_clean = l.replace('%', '%25').replace('\r', '').replace('\n', '%0A')
+              print(f'::error title=CompilerError::{l_clean}')
           "
 
       - name: Run Unit Tests

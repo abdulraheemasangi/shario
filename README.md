@@ -12,10 +12,37 @@
 
 ---
 
-### 📲 Download Links
-- 📥 **[Direct Download: app-release.apk (Latest v1.0.0)](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk)**
-- 📦 **[GitHub Releases Page & Version History](https://github.com/abdulraheemasangi/shario/releases)**
-- ⚙️ **[Automated CI/CD Build Artifacts](https://github.com/abdulraheemasangi/shario/actions)**
+## 📥 Direct APK Download & Installation
+
+Get the latest production build of **Shario** directly on your Android phone without needing Android Studio or Google Play Store.
+
+### 🚀 Direct Download Links
+
+| Package | Version | Direct Download Link | Details |
+| :--- | :---: | :--- | :--- |
+| **Shario Release APK** *(Recommended)* | `v1.0.0` | [⬇️ **Download app-release.apk**](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk) | Production optimized, battery efficient, signed |
+| **Shario Debug APK** | `v1.0.0` | [⬇️ **Download app-debug.apk**](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-debug.apk) | Includes debug logs, inspectable |
+| **GitHub Releases Page** | Latest | [📦 **View All Releases & Assets**](https://github.com/abdulraheemasangi/shario/releases/latest) | Full changelog, release notes, checksums |
+
+> 💡 **Tip:** For everyday phone-to-phone transfers, always download **`app-release.apk`**.
+
+---
+
+### 📲 Step-by-Step Installation Guide (Android)
+
+Follow these 4 simple steps to install Shario on your device:
+
+1. **Download the APK**:
+   - Tap [Download app-release.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk) using your mobile browser (Chrome, Firefox, Brave, Samsung Internet).
+2. **Allow Unknown Sources**:
+   - If prompted: *"For your security, your phone is not allowed to install unknown apps from this source"*.
+   - Tap **Settings** ➡️ Enable **"Allow from this source"** (or *Install unknown apps*).
+3. **Install the App**:
+   - Tap the completed download notification or find `app-release.apk` in your **Downloads** / **Files** app.
+   - Tap **Install** and wait for completion.
+4. **Grant Zero-Loss Permissions**:
+   - On first launch, grant **Nearby Devices** (for Wi-Fi Direct peer discovery) and **Photos & Videos / Storage**.
+   - Grant **Media Location** so GPS EXIF location data is preserved 100% intact when transferring photos and 4K videos.
 
 ---
 

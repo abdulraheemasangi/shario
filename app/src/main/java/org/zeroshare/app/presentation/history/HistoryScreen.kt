@@ -21,8 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CallReceived
-import androidx.compose.material.icons.filled.CallMade
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -125,7 +125,7 @@ private fun HistoryItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (record.isIncoming) Icons.Default.CallReceived else Icons.Default.CallMade,
+                    imageVector = if (record.isIncoming) Icons.Default.FileDownload else Icons.Default.FileUpload,
                     contentDescription = null,
                     tint = if (record.isIncoming) SuccessGreen else PrimaryBlue,
                     modifier = Modifier.size(18.dp)

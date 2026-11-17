@@ -217,7 +217,7 @@ private fun FileTransferCard(fileState: FileTransferItemState) {
         Spacer(modifier = Modifier.height(8.dp))
 
         LinearProgressIndicator(
-            progress = { progress },
+            progress = progress,
             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
             color = if (fileState.isVerified) SuccessGreen else PrimaryBlue,
             trackColor = MaterialTheme.colorScheme.surface
