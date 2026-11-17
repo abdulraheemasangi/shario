@@ -1,15 +1,18 @@
 package org.zeroshare.app.presentation
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +35,7 @@ import org.zeroshare.app.presentation.discovery.DiscoverySenderScreen
 import org.zeroshare.app.presentation.history.HistoryScreen
 import org.zeroshare.app.presentation.home.HomeScreen
 import org.zeroshare.app.presentation.picker.FilePickerScreen
+import org.zeroshare.app.presentation.theme.GlassBackground
 import org.zeroshare.app.presentation.theme.SharioTheme
 import org.zeroshare.app.presentation.transfer.TransferProgressScreen
 
@@ -46,6 +51,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         checkAndRequestPermissions()
@@ -54,15 +60,46 @@ class MainActivity : ComponentActivity() {
             SharioTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = GlassBackground
                 ) {
-                    AppNavigation(viewModel)
+                    AppNavigation(
+                        viewModel = viewModel,
+                        hasStoragePermissions = { hasRequiredStoragePermissions() },
+                        onRequestPermissions = { checkAndRequestPermissions() },
+                        onOpenSettings = { openAppSettings() }
+                    )
                 }
             }
         }
     }
 
-    private fun checkAndRequestPermissions() {
+    override fun onResume() {
+        super.onResume()
+        if (hasRequiredStoragePermissions()) {
+            viewModel.loadMedia()
+        }
+    }
+
+    fun hasRequiredStoragePermissions(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    fun openAppSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", packageName, null)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+        } catch (ignored: Exception) {}
+    }
+
+    fun checkAndRequestPermissions() {
         val permissions = mutableListOf<String>()
 
         // Media & EXIF Location permissions
@@ -97,15 +134,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation(viewModel: MainViewModel) {
+fun AppNavigation(
+    viewModel: MainViewModel,
+    hasStoragePermissions: () -> Boolean,
+    onRequestPermissions: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
     val navController = rememberNavController()
     var queuedItemsToSend by remember { mutableStateOf<List<ShareableItem>>(emptyList()) }
 
     val transferState by viewModel.transferSessionState.collectAsState()
 
-    // Automatically navigate to active transfer screen when transfer starts
+    // Problem 5 Fix: Automatically navigate to active transfer screen ONLY when transfer actually starts transferring
     LaunchedEffect(transferState.status) {
-        if (transferState.status == TransferStatus.TRANSFERRING || transferState.status == TransferStatus.CONNECTING) {
+        if (transferState.status == TransferStatus.TRANSFERRING) {
             navController.navigate("transfer") {
                 launchSingleTop = true
             }
@@ -115,7 +157,12 @@ fun AppNavigation(viewModel: MainViewModel) {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(
-                onNavigateToSend = { navController.navigate("picker") },
+                onNavigateToSend = {
+                    if (!hasStoragePermissions()) {
+                        onRequestPermissions()
+                    }
+                    navController.navigate("picker")
+                },
                 onNavigateToReceive = {
                     viewModel.prepareToReceive("Phone Receiver")
                     navController.navigate("receive")
@@ -135,6 +182,9 @@ fun AppNavigation(viewModel: MainViewModel) {
                 videos = videos,
                 audio = audio,
                 apps = apps,
+                hasPermission = hasStoragePermissions(),
+                onRequestPermissions = onRequestPermissions,
+                onOpenSettings = onOpenSettings,
                 onProceedToSend = { selected ->
                     queuedItemsToSend = selected
                     viewModel.startDiscovery()
@@ -163,7 +213,10 @@ fun AppNavigation(viewModel: MainViewModel) {
             payload?.let {
                 DiscoveryReceiverScreen(
                     payload = it,
-                    onBack = { navController.popBackStack() }
+                    onBack = {
+                        viewModel.cancelTransfer()
+                        navController.popBackStack()
+                    }
                 )
             }
         }

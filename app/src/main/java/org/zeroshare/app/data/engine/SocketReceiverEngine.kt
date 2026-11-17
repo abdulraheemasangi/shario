@@ -35,15 +35,18 @@ class SocketReceiverEngine(
         secretKey: SecretKey?,
         onProgressUpdate: (TransferSessionState) -> Unit
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        isCancelled = false
         val speedCalculator = SpeedCalculator()
         var clientSocket: Socket? = null
 
         try {
+            try { serverSocket?.close() } catch (ignored: Exception) {}
+
             serverSocket = ServerSocket(port).apply {
                 reuseAddress = true
             }
 
-            onProgressUpdate(TransferSessionState(status = TransferStatus.CONNECTING, isSender = false))
+            // Wait for incoming sender connection. Keep status IDLE so QR screen stays visible!
             val socket = serverSocket!!.accept().also { clientSocket = it }
             socket.tcpNoDelay = true
             socket.receiveBufferSize = 512 * 1024
@@ -203,12 +206,14 @@ class SocketReceiverEngine(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            onProgressUpdate(
-                TransferSessionState(
-                    status = TransferStatus.FAILED,
-                    errorMessage = e.localizedMessage ?: "Receiver error"
+            if (!isCancelled) {
+                onProgressUpdate(
+                    TransferSessionState(
+                        status = TransferStatus.FAILED,
+                        errorMessage = e.localizedMessage ?: "Receiver error"
+                    )
                 )
-            )
+            }
             Result.failure(e)
         } finally {
             try { clientSocket?.close() } catch (ignored: Exception) {}

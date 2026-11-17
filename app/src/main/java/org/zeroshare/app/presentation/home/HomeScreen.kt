@@ -1,6 +1,7 @@
 package org.zeroshare.app.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,11 +23,8 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,9 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.zeroshare.app.R
-import org.zeroshare.app.presentation.theme.PrimaryBlue
-import org.zeroshare.app.presentation.theme.PrimaryBlueVariant
-import org.zeroshare.app.presentation.theme.SuccessGreen
+import org.zeroshare.app.presentation.components.GlassCard
+import org.zeroshare.app.presentation.components.LiquidGlassBackground
+import org.zeroshare.app.presentation.theme.GlassBorderLight
+import org.zeroshare.app.presentation.theme.GlassBorderUltraLight
+import org.zeroshare.app.presentation.theme.IosBlue
+import org.zeroshare.app.presentation.theme.IosCyan
+import org.zeroshare.app.presentation.theme.IosGreen
+import org.zeroshare.app.presentation.theme.IosIndigo
+import org.zeroshare.app.presentation.theme.IosMint
 
 @Composable
 fun HomeScreen(
@@ -48,17 +54,20 @@ fun HomeScreen(
     onNavigateToReceive: () -> Unit,
     onNavigateToHistory: () -> Unit
 ) {
-    Scaffold { paddingValues ->
+    LiquidGlassBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(20.dp),
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(horizontal = 22.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App Bar Title
+            // Apple-style Glass Top Navigation Bar
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -67,169 +76,246 @@ fun HomeScreen(
                         text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = PrimaryBlue
+                            letterSpacing = (-0.5).sp,
+                            brush = Brush.linearGradient(
+                                listOf(Color.White, Color(0xFFD0E2FF))
+                            )
                         )
                     )
                     Text(
                         text = stringResource(R.string.tagline),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color(0xCCEBEBF5),
+                            fontWeight = FontWeight.Medium
+                        )
                     )
                 }
 
+                // Frosted Circular Glass History Button
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(46.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(Color(0x22FFFFFF))
+                        .border(
+                            width = 1.dp,
+                            brush = Brush.verticalGradient(listOf(GlassBorderLight, GlassBorderUltraLight)),
+                            shape = CircleShape
+                        )
                         .clickable { onNavigateToHistory() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.History,
                         contentDescription = "History",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(26.dp))
 
-            // Zero-Loss Trust Card
-            Card(
+            // Zero-Loss Trust Liquid Glass Card
+            GlassCard(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(22.dp),
+                backgroundColor = Color(0x1AFFFFFF)
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(44.dp)
                             .clip(CircleShape)
-                            .background(SuccessGreen.copy(alpha = 0.15f)),
+                            .background(IosGreen.copy(alpha = 0.2f))
+                            .border(1.dp, IosGreen.copy(alpha = 0.4f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Security,
                             contentDescription = null,
-                            tint = SuccessGreen,
+                            tint = IosMint,
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
                             text = "Bit-for-Bit Identical",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
+                            color = Color.White
                         )
                         Text(
                             text = "No re-encoding • Original EXIF GPS • SHA-256 Verified",
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color(0xAAEBEBF5)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // Big Action Buttons: Send & Receive
+            // Dual Liquid Glass Action Cards (Send & Receive)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                ActionCard(
+                LiquidGlassActionCard(
                     title = stringResource(R.string.action_send),
-                    subtitle = "Share 100% original files",
+                    subtitle = "100% Original Quality",
                     icon = Icons.Default.Send,
-                    gradient = Brush.linearGradient(listOf(PrimaryBlue, PrimaryBlueVariant)),
+                    gradientColors = listOf(IosBlue, IosIndigo),
+                    accentColor = IosCyan,
                     modifier = Modifier.weight(1f),
                     onClick = onNavigateToSend
                 )
 
-                ActionCard(
+                LiquidGlassActionCard(
                     title = stringResource(R.string.action_receive),
-                    subtitle = "Accept incoming files",
+                    subtitle = "Accept Files via QR",
                     icon = Icons.Default.FileDownload,
-                    gradient = Brush.linearGradient(listOf(SuccessGreen, Color(0xFF009624))),
+                    gradientColors = listOf(IosMint, IosGreen),
+                    accentColor = Color(0xFF64D2FF),
                     modifier = Modifier.weight(1f),
                     onClick = onNavigateToReceive
                 )
             }
 
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // Liquid Glass Feature Badges
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                GlassMiniBadge(label = "⚡ Up to 50 MB/s", modifier = Modifier.weight(1f))
+                GlassMiniBadge(label = "🔒 AES-256-GCM", modifier = Modifier.weight(1f))
+                GlassMiniBadge(label = "📶 No Internet", modifier = Modifier.weight(1f))
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
-            // Bottom Branding Banner
-            Text(
-                text = "Shario — Fast Sharing. Zero Hassle.",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
+            // Bottom Liquid Glass Brand Pill
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color(0x14FFFFFF))
+                    .border(1.dp, Color(0x1FFFFFFF), RoundedCornerShape(20.dp))
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Shario — Fast Sharing. Zero Hassle.",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = Color(0x88FFFFFF),
+                        letterSpacing = 0.5.sp
+                    )
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ActionCard(
+private fun LiquidGlassActionCard(
     title: String,
     subtitle: String,
     icon: ImageVector,
-    gradient: Brush,
+    gradientColors: List<Color>,
+    accentColor: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = modifier
-            .height(200.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(gradient)
-                .padding(20.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.25f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = title,
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+    val cardShape = RoundedCornerShape(28.dp)
 
-                Column {
-                    Text(
-                        text = title,
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.ExtraBold
+    Box(
+        modifier = modifier
+            .height(210.dp)
+            .clip(cardShape)
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        gradientColors[0].copy(alpha = 0.85f),
+                        gradientColors[1].copy(alpha = 0.95f)
                     )
-                    Text(
-                        text = subtitle,
-                        color = Color.White.copy(alpha = 0.85f),
-                        fontSize = 12.sp
+                )
+            )
+            .border(
+                width = 1.2.dp,
+                brush = Brush.verticalGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.6f),
+                        Color.White.copy(alpha = 0.15f)
                     )
-                }
+                ),
+                shape = cardShape
+            )
+            .clickable { onClick() }
+            .padding(18.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Glass bubble for icon
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.22f))
+                    .border(1.dp, Color.White.copy(alpha = 0.4f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = Color.White,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+
+            Column {
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.3).sp
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    color = Color.White.copy(alpha = 0.82f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun GlassMiniBadge(
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color(0x18FFFFFF))
+            .border(1.dp, Color(0x22FFFFFF), RoundedCornerShape(14.dp))
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xDDEBEBF5)
+        )
     }
 }

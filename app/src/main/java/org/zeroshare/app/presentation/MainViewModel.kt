@@ -69,6 +69,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun prepareToReceive(deviceName: String) {
+        _transferSessionState.value = TransferSessionState(status = TransferStatus.IDLE)
         val payload = connectionCoordinator.prepareReceiverSession(deviceName, ConnectionType.WIFI_DIRECT)
         receiverQrPayload.value = payload
 
@@ -149,6 +150,8 @@ class MainViewModel @Inject constructor(
     fun cancelTransfer() {
         socketSenderEngine.cancel()
         socketReceiverEngine.cancel()
+        _transferSessionState.value = TransferSessionState(status = TransferStatus.IDLE)
+        receiverQrPayload.value = null
     }
 
     private fun recordHistory(state: TransferSessionState) {
