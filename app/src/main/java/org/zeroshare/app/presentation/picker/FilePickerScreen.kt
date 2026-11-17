@@ -69,6 +69,7 @@ import org.zeroshare.app.core.extensions.FormatExtensions
 import org.zeroshare.app.domain.model.ItemCategory
 import org.zeroshare.app.domain.model.ShareableItem
 import org.zeroshare.app.presentation.components.GlassCard
+import org.zeroshare.app.presentation.components.ItemThumbnail
 import org.zeroshare.app.presentation.components.LiquidGlassBackground
 import org.zeroshare.app.presentation.theme.GlassBorderLight
 import org.zeroshare.app.presentation.theme.GlassBorderUltraLight
@@ -83,6 +84,7 @@ fun FilePickerScreen(
     photos: List<ShareableItem>,
     videos: List<ShareableItem>,
     audio: List<ShareableItem>,
+    documents: List<ShareableItem> = emptyList(),
     apps: List<ShareableItem>,
     hasPermission: Boolean = true,
     onRequestPermissions: () -> Unit = {},
@@ -97,12 +99,13 @@ fun FilePickerScreen(
         Pair(stringResource(R.string.category_photos), photos),
         Pair(stringResource(R.string.category_videos), videos),
         Pair(stringResource(R.string.category_audio), audio),
+        Pair(stringResource(R.string.category_docs), documents),
         Pair(stringResource(R.string.category_apps), apps)
     )
 
     val currentList = tabs[selectedTabIndex].second
     val totalSelectedBytes = selectedItems.values.sumOf { it.size }
-    val totalAllItems = photos.size + videos.size + audio.size + apps.size
+    val totalAllItems = photos.size + videos.size + audio.size + documents.size + apps.size
 
     LiquidGlassBackground {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -484,30 +487,7 @@ private fun LiquidGlassFileRow(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val icon: ImageVector = when (item.category) {
-                ItemCategory.PHOTO -> Icons.Default.Image
-                ItemCategory.VIDEO -> Icons.Default.VideoFile
-                ItemCategory.AUDIO -> Icons.Default.AudioFile
-                ItemCategory.APP -> Icons.Default.Android
-                else -> Icons.Default.Description
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        if (isSelected) IosBlue.copy(alpha = 0.25f) else Color(0x18FFFFFF)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = if (isSelected) IosCyan else Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            ItemThumbnail(item = item)
 
             Spacer(modifier = Modifier.width(12.dp))
 

@@ -27,7 +27,7 @@
     <string name="category_files">Files &amp; Folders</string>
 
     <!-- Quality Invariants -->
-    <string name="badge_verified">Verified ✓</string>
+    <string name="badge_verified">Verified</string>
     <string name="badge_original">Original Quality 100%</string>
     <string name="sha256_match">SHA-256 Checksum Verified</string>
     <string name="sha256_label">SHA-256:</string>

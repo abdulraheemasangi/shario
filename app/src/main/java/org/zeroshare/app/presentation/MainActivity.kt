@@ -28,10 +28,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.zeroshare.app.core.security.QrPayloadCodec
+import org.zeroshare.app.domain.model.PeerDevice
 import org.zeroshare.app.domain.model.ShareableItem
 import org.zeroshare.app.domain.model.TransferStatus
 import org.zeroshare.app.presentation.discovery.DiscoveryReceiverScreen
 import org.zeroshare.app.presentation.discovery.DiscoverySenderScreen
+import org.zeroshare.app.presentation.discovery.QrScannerScreen
 import org.zeroshare.app.presentation.history.HistoryScreen
 import org.zeroshare.app.presentation.home.HomeScreen
 import org.zeroshare.app.presentation.picker.FilePickerScreen
@@ -175,12 +178,14 @@ fun AppNavigation(
             val photos by viewModel.photos.collectAsState()
             val videos by viewModel.videos.collectAsState()
             val audio by viewModel.audio.collectAsState()
+            val documents by viewModel.documents.collectAsState()
             val apps by viewModel.apps.collectAsState()
 
             FilePickerScreen(
                 photos = photos,
                 videos = videos,
                 audio = audio,
+                documents = documents,
                 apps = apps,
                 hasPermission = hasStoragePermissions(),
                 onRequestPermissions = onRequestPermissions,
@@ -202,7 +207,26 @@ fun AppNavigation(
                     viewModel.startTransferToPeer(peer, queuedItemsToSend, null)
                 },
                 onScanQrCode = {
-                    // QR scanner flow
+                    navController.navigate("scanner")
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable("scanner") {
+            QrScannerScreen(
+                onQrCodeDetected = { qrText ->
+                    try {
+                        val payload = QrPayloadCodec.decode(qrText)
+                        val peer = PeerDevice(
+                            id = payload.receiverDeviceName,
+                            name = payload.receiverDeviceName,
+                            address = payload.ipAddress,
+                            port = payload.port,
+                            connectionType = payload.connectionType
+                        )
+                        viewModel.startTransferToPeer(peer, queuedItemsToSend, payload.aesKeyBase64)
+                    } catch (ignored: Exception) {}
                 },
                 onBack = { navController.popBackStack() }
             )

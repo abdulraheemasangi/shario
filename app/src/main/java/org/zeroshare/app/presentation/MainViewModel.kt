@@ -41,6 +41,7 @@ class MainViewModel @Inject constructor(
     val photos = MutableStateFlow<List<ShareableItem>>(emptyList())
     val videos = MutableStateFlow<List<ShareableItem>>(emptyList())
     val audio = MutableStateFlow<List<ShareableItem>>(emptyList())
+    val documents = MutableStateFlow<List<ShareableItem>>(emptyList())
     val apps = MutableStateFlow<List<ShareableItem>>(emptyList())
 
     val discoveredPeers = MutableStateFlow<List<PeerDevice>>(emptyList())
@@ -56,6 +57,7 @@ class MainViewModel @Inject constructor(
             photos.value = mediaPickerRepository.queryPhotos()
             videos.value = mediaPickerRepository.queryVideos()
             audio.value = mediaPickerRepository.queryAudio()
+            documents.value = mediaPickerRepository.queryDocuments()
             apps.value = mediaPickerRepository.queryInstalledApps()
         }
     }

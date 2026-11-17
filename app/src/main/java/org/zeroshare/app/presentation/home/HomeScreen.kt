@@ -19,10 +19,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -188,14 +191,14 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Liquid Glass Feature Badges
+            // Liquid Glass Feature Badges with SVGs
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                GlassMiniBadge(label = "⚡ Up to 50 MB/s", modifier = Modifier.weight(1f))
-                GlassMiniBadge(label = "🔒 AES-256-GCM", modifier = Modifier.weight(1f))
-                GlassMiniBadge(label = "📶 No Internet", modifier = Modifier.weight(1f))
+                GlassMiniBadge(icon = Icons.Default.Bolt, label = "Up to 50 MB/s", modifier = Modifier.weight(1f))
+                GlassMiniBadge(icon = Icons.Default.Lock, label = "AES-256-GCM", modifier = Modifier.weight(1f))
+                GlassMiniBadge(icon = Icons.Default.WifiOff, label = "No Internet", modifier = Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -300,6 +303,7 @@ private fun LiquidGlassActionCard(
 
 @Composable
 private fun GlassMiniBadge(
+    icon: ImageVector,
     label: String,
     modifier: Modifier = Modifier
 ) {
@@ -308,14 +312,23 @@ private fun GlassMiniBadge(
             .clip(RoundedCornerShape(14.dp))
             .background(Color(0x18FFFFFF))
             .border(1.dp, Color(0x22FFFFFF), RoundedCornerShape(14.dp))
-            .padding(vertical = 10.dp),
+            .padding(vertical = 10.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xDDEBEBF5)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = IosCyan,
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xDDEBEBF5)
+            )
+        }
     }
 }

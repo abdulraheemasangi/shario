@@ -144,6 +144,62 @@ class MediaPickerRepository(private val context: Context) {
         list
     }
 
+    suspend fun queryDocuments(): List<ShareableItem> = withContext(Dispatchers.IO) {
+        val list = mutableListOf<ShareableItem>()
+        val projection = arrayOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DISPLAY_NAME,
+            MediaStore.Files.FileColumns.SIZE,
+            MediaStore.Files.FileColumns.MIME_TYPE,
+            MediaStore.Files.FileColumns.DATE_MODIFIED
+        )
+
+        val extensions = listOf(".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".zip", ".rar", ".7z", ".csv")
+        val selection = extensions.joinToString(" OR ") { "${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE ?" }
+        val selectionArgs = extensions.map { "%$it" }.toTypedArray()
+        val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+
+        try {
+            val contentUri = MediaStore.Files.getContentUri("external")
+            context.contentResolver.query(
+                contentUri,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
+                val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                val mimeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                val modCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idCol)
+                    val name = cursor.getString(nameCol) ?: "document_$id"
+                    val size = cursor.getLong(sizeCol)
+                    val mime = cursor.getString(mimeCol) ?: "application/octet-stream"
+                    val mod = cursor.getLong(modCol) * 1000
+                    val fileUri = ContentUris.withAppendedId(contentUri, id)
+
+                    list.add(
+                        ShareableItem(
+                            id = "doc_$id",
+                            uri = fileUri,
+                            name = name,
+                            size = size,
+                            mimeType = mime,
+                            category = ItemCategory.DOCUMENT,
+                            lastModified = mod
+                        )
+                    )
+                }
+            }
+        } catch (ignored: Exception) {}
+
+        list
+    }
+
     suspend fun queryInstalledApps(): List<ShareableItem> = withContext(Dispatchers.IO) {
         val pm = context.packageManager
         val installedApps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

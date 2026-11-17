@@ -124,7 +124,7 @@ fun DiscoveryReceiverScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Listening on ${payload.ipAddress}:${payload.port}",
+                            text = "Waiting for Sender to Connect",
                             fontSize = 12.sp,
                             color = IosMint,
                             fontWeight = FontWeight.Medium
