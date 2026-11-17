@@ -61,7 +61,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.zeroshare.app.R
-import org.zeroshare.app.core.util.FormatExtensions
+import org.zeroshare.app.core.extensions.FormatExtensions
 import org.zeroshare.app.domain.model.ShareableItem
 import org.zeroshare.app.presentation.components.GlassCard
 import org.zeroshare.app.presentation.components.ItemThumbnail
