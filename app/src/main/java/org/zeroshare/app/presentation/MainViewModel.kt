@@ -194,15 +194,16 @@ class MainViewModel @Inject constructor(
     }
 
     private fun recordHistory(state: TransferSessionState) {
+        val firstFile = state.fileStates.firstOrNull()
         val newRecord = TransferRecord(
-            id = UUID.randomUUID().toString(),
-            fileName = state.currentFileName.ifBlank { "Transferred Files (${state.totalFiles})" },
+            id = if (state.transferId.isNotBlank()) state.transferId else UUID.randomUUID().toString(),
+            fileName = state.currentFileName.ifBlank { firstFile?.name ?: "Transferred Files (${state.totalFiles})" },
             fileSize = state.totalBytes,
             mimeType = "application/octet-stream",
-            sha256 = state.sha256,
-            isVerified = state.isSha256Verified,
-            isIncoming = false,
-            peerName = "Completed Peer",
+            sha256 = firstFile?.sha256Expected ?: "",
+            isVerified = firstFile?.isVerified ?: (state.status == TransferStatus.COMPLETED),
+            isIncoming = !state.isSender,
+            peerName = state.remoteDeviceName.ifBlank { "Completed Peer" },
             timestamp = System.currentTimeMillis()
         )
         historyRecords.value = listOf(newRecord) + historyRecords.value
