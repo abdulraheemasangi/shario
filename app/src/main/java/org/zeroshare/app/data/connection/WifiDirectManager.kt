@@ -21,11 +21,11 @@ import org.zeroshare.app.domain.model.PeerDevice
 class WifiDirectManager(private val context: Context) {
 
     private val p2pManager: WifiP2pManager? = context.getSystemService(Context.WIFI_P2P_SERVICE) as? WifiP2pManager
-    private val channel: WifiP2pManager.Channel? = p2pManager?.initialize(context, Looper.getMainLooper(), null)
+    private val p2pChannel: WifiP2pManager.Channel? = p2pManager?.initialize(context, Looper.getMainLooper(), null)
 
     @SuppressLint("MissingPermission")
     fun discoverPeers(): Flow<List<PeerDevice>> = callbackFlow {
-        if (p2pManager == null || channel == null) {
+        if (p2pManager == null || p2pChannel == null) {
             trySend(emptyList())
             close()
             return@callbackFlow
@@ -48,7 +48,7 @@ class WifiDirectManager(private val context: Context) {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
                     WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
-                        p2pManager.requestPeers(channel, peerListListener)
+                        p2pManager.requestPeers(p2pChannel, peerListListener)
                     }
                 }
             }
@@ -61,7 +61,7 @@ class WifiDirectManager(private val context: Context) {
 
         context.registerReceiver(receiver, intentFilter)
 
-        p2pManager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
+        p2pManager.discoverPeers(p2pChannel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {}
             override fun onFailure(reason: Int) {}
         })
@@ -69,18 +69,18 @@ class WifiDirectManager(private val context: Context) {
         awaitClose {
             try {
                 context.unregisterReceiver(receiver)
-                p2pManager.stopPeerDiscovery(channel, null)
+                p2pManager.stopPeerDiscovery(p2pChannel, null)
             } catch (ignored: Exception) {}
         }
     }
 
     @SuppressLint("MissingPermission")
     fun createGroup(onSuccess: (groupInfo: String) -> Unit, onFailure: (reason: Int) -> Unit) {
-        if (p2pManager == null || channel == null) {
+        if (p2pManager == null || p2pChannel == null) {
             onFailure(-1)
             return
         }
-        p2pManager.createGroup(channel, object : WifiP2pManager.ActionListener {
+        p2pManager.createGroup(p2pChannel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
                 onSuccess("Wi-Fi Direct Group Created")
             }
@@ -96,7 +96,7 @@ class WifiDirectManager(private val context: Context) {
         onConnected: (info: WifiP2pInfo) -> Unit,
         onFailure: (reason: Int) -> Unit
     ) {
-        if (p2pManager == null || channel == null) {
+        if (p2pManager == null || p2pChannel == null) {
             onFailure(-1)
             return
         }
@@ -104,10 +104,10 @@ class WifiDirectManager(private val context: Context) {
             this.deviceAddress = deviceAddress
         }
 
-        p2pManager.connect(channel, config, object : WifiP2pManager.ActionListener {
+        p2pManager.connect(p2pChannel, config, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
                 // Monitor connection info
-                p2pManager.requestConnectionInfo(channel) { info ->
+                p2pManager.requestConnectionInfo(p2pChannel) { info ->
                     if (info.groupFormed) {
                         onConnected(info)
                     }
@@ -120,8 +120,8 @@ class WifiDirectManager(private val context: Context) {
     }
 
     fun removeGroup() {
-        if (p2pManager != null && channel != null) {
-            p2pManager.removeGroup(channel, null)
+        if (p2pManager != null && p2pChannel != null) {
+            p2pManager.removeGroup(p2pChannel, null)
         }
     }
 }
