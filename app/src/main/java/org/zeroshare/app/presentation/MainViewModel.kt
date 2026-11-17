@@ -188,21 +188,22 @@ class MainViewModel @Inject constructor(
 
     fun cancelTransfer() {
         socketSenderEngine.cancel()
-        socketReceiverEngine.stop()
+        socketReceiverEngine.cancel()
         connectionCoordinator.stopReceiverSession()
         _transferSessionState.value = TransferSessionState(status = TransferStatus.CANCELLED)
     }
 
     private fun recordHistory(state: TransferSessionState) {
         val newRecord = TransferRecord(
-            transferId = UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(),
+            fileName = state.currentFileName.ifBlank { "Transferred Files (${state.totalFiles})" },
+            fileSize = state.totalBytes,
+            mimeType = "application/octet-stream",
+            sha256 = state.sha256,
+            isVerified = state.isSha256Verified,
+            isIncoming = false,
             peerName = "Completed Peer",
-            timestamp = System.currentTimeMillis(),
-            totalFiles = state.totalFiles,
-            totalBytes = state.totalBytes,
-            averageSpeedBytesPerSec = state.speedBytesPerSec,
-            isSender = true,
-            status = state.status
+            timestamp = System.currentTimeMillis()
         )
         historyRecords.value = listOf(newRecord) + historyRecords.value
     }
