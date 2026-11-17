@@ -4,7 +4,7 @@
 > **100% Bit-for-Bit Original Phone-to-Phone File Sharing**
 
 [![Download Latest Release APK](https://img.shields.io/badge/Download_Latest-app--release.apk-007AFF?style=for-the-badge&logo=android)](https://github.com/abdulraheemasangi/shario/releases/latest/download/app-release.apk)
-[![Version](https://img.shields.io/badge/Version-v1.0.0-34C759?style=for-the-badge)](https://github.com/abdulraheemasangi/shario/releases/latest)
+[![Version](https://img.shields.io/badge/Version-v1.1.0-34C759?style=for-the-badge)](https://github.com/abdulraheemasangi/shario/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/abdulraheemasangi/shario/build-apk.yml?branch=main&style=for-the-badge)](https://github.com/abdulraheemasangi/shario/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%2010--15-brightgreen.svg)]()
@@ -14,13 +14,13 @@
 
 ## 📥 Direct APK Download & Installation
 
-> **Current Version:** `v1.0.0` (Latest Official Release)
+> **Current Version:** `v1.1.0` (Latest Official Release)
 
 ### 🚀 Direct Download (Latest Only)
 
 | Version | Build | Direct Download Link | Integrity |
 | :---: | :---: | :--- | :---: |
-| **v1.0.0** *(Latest)* | Signed Release APK | [⬇️ **Download app-release.apk**](https://github.com/abdulraheemasangi/shario/releases/latest/download/app-release.apk) | Verified ✓ |
+| **v1.1.0** *(Latest)* | Signed Release APK | [⬇️ **Download app-release.apk**](https://github.com/abdulraheemasangi/shario/releases/latest/download/app-release.apk) | Verified ✓ |
 
 > 📲 **Direct link:** `https://github.com/abdulraheemasangi/shario/releases/latest/download/app-release.apk`
 >
@@ -33,7 +33,7 @@
 Follow these 4 simple steps to install Shario on your device:
 
 1. **Download the APK**:
-   - Tap [Download app-release.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk) using your mobile browser (Chrome, Firefox, Brave, Samsung Internet).
+   - Tap [Download app-release.apk](https://github.com/abdulraheemasangi/shario/releases/latest/download/app-release.apk) using your mobile browser (Chrome, Firefox, Brave, Samsung Internet).
 2. **Allow Unknown Sources**:
    - If prompted: *"For your security, your phone is not allowed to install unknown apps from this source"*.
    - Tap **Settings** ➡️ Enable **"Allow from this source"** (or *Install unknown apps*).

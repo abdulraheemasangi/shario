@@ -80,24 +80,23 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "Shario v1.0.0 — Fast Sharing. Zero Hassle."
+          tag_name: v1.1.0
+          name: "Shario v1.1.0 — Fast Sharing. Zero Hassle."
           make_latest: true
           body: |
-            ### 🚀 Shario v1.0.0 — Fast Sharing. Zero Hassle.
+            ### 🚀 Shario v1.1.0 — Fast Sharing. Zero Hassle.
             
             100% Bit-for-Bit Original Phone-to-Phone File Sharing (Ad-Free & Lossless).
             
-            #### 📥 Direct APK Downloads
-            - **[app-release.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-release.apk)**
-            - **[app-debug.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.0.0/app-debug.apk)**
+            #### 📥 Direct APK Download (Latest)
+            - **[⬇️ Download app-release.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.1.0/app-release.apk)** (Production Signed)
             
-            #### Features:
-            - **Zero Quality Loss**: Photos, 4K videos, audio, and documents transferred without re-encoding or EXIF/GPS redaction.
-            - **SHA-256 Verified**: Cryptographic integrity validation with "Verified ✓" badge.
-            - **Fast Offline Transfers**: Wi-Fi Direct & Local Hotspot high-speed streaming.
-            - **Split APKs**: Complete App Bundle extraction and atomic installation.
-            - **E2E Encryption**: AES-256-GCM cipher with QR code key exchange.
+            #### What's New in v1.1.0:
+            - **Apple Liquid Glass UI**: Frosted glassmorphism design with ambient liquid glow and smooth squircle aesthetics.
+            - **Fixed Receive Mode QR Persistence**: QR code remains persistent on screen until sender connects; no disappearing glitch.
+            - **Safe Status Bar Insets**: All screens adapt cleanly to system cutouts and camera notches.
+            - **Permission Self-Healing**: Direct liquid glass prompt with app settings shortcuts when storage access is missing.
+            - **Zero Quality Loss**: Uncompressed photos, 4K videos, split APKs, and documents.
           files: |
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/apk/debug/app-debug.apk
