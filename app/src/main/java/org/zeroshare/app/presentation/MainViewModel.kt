@@ -33,7 +33,7 @@ class MainViewModel @Inject constructor(
     private val mediaPickerRepository: MediaPickerRepository,
     private val rawContentReader: RawContentReader,
     private val appPackageExtractor: AppPackageExtractor,
-    private val connectionCoordinator: ConnectionCoordinator,
+    val connectionCoordinator: ConnectionCoordinator,
     private val socketSenderEngine: SocketSenderEngine,
     private val socketReceiverEngine: SocketReceiverEngine
 ) : ViewModel() {
@@ -47,10 +47,18 @@ class MainViewModel @Inject constructor(
     val discoveredPeers = MutableStateFlow<List<PeerDevice>>(emptyList())
     val receiverQrPayload = MutableStateFlow<QrConnectionPayload?>(null)
 
+    val isWifiEnabled = MutableStateFlow(true)
+    val isLocationEnabled = MutableStateFlow(true)
+
     private val _transferSessionState = MutableStateFlow(TransferSessionState())
     val transferSessionState: StateFlow<TransferSessionState> = _transferSessionState.asStateFlow()
 
     val historyRecords = MutableStateFlow<List<TransferRecord>>(emptyList())
+
+    fun refreshConnectivityStatus() {
+        isWifiEnabled.value = connectionCoordinator.isWifiEnabled()
+        isLocationEnabled.value = connectionCoordinator.isLocationEnabled()
+    }
 
     fun loadMedia() {
         viewModelScope.launch {
@@ -63,6 +71,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun startDiscovery() {
+        refreshConnectivityStatus()
         viewModelScope.launch {
             connectionCoordinator.startDiscovery().collect { peers ->
                 discoveredPeers.value = peers
@@ -71,6 +80,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun prepareToReceive(deviceName: String) {
+        refreshConnectivityStatus()
         _transferSessionState.value = TransferSessionState(status = TransferStatus.IDLE)
         val payload = connectionCoordinator.prepareReceiverSession(deviceName, ConnectionType.WIFI_DIRECT)
         receiverQrPayload.value = payload
@@ -91,8 +101,35 @@ class MainViewModel @Inject constructor(
     }
 
     fun startTransferToPeer(peer: PeerDevice, selectedItems: List<ShareableItem>, secretKeyBase64: String?) {
+        if (peer.connectionType == ConnectionType.WIFI_DIRECT) {
+            _transferSessionState.value = TransferSessionState(
+                status = TransferStatus.CONNECTING,
+                currentFileName = "Pairing with ${peer.name}..."
+            )
+            connectionCoordinator.wifiDirectManager.connectToPeer(
+                deviceAddress = peer.address,
+                onConnected = { resolvedIp ->
+                    proceedWithSocketSend(resolvedIp, peer.port, selectedItems, secretKeyBase64)
+                },
+                onFailure = {
+                    _transferSessionState.value = TransferSessionState(
+                        status = TransferStatus.FAILED,
+                        errorMessage = "Could not form Wi-Fi Direct link with ${peer.name}. Please scan QR code instead."
+                    )
+                }
+            )
+        } else {
+            proceedWithSocketSend(peer.address, peer.port, selectedItems, secretKeyBase64)
+        }
+    }
+
+    private fun proceedWithSocketSend(
+        hostIp: String,
+        port: Int,
+        selectedItems: List<ShareableItem>,
+        secretKeyBase64: String?
+    ) {
         viewModelScope.launch {
-            // Build manifest and calculate SHA-256 for each item
             val filesList = mutableListOf<FileMetadata>()
             var totalBytes = 0L
 
@@ -126,8 +163,8 @@ class MainViewModel @Inject constructor(
             val secretKey = secretKeyBase64?.let { AesGcmCipher.keyFromBase64(it) }
 
             socketSenderEngine.sendFiles(
-                host = peer.address,
-                port = peer.port,
+                host = hostIp,
+                port = port,
                 items = selectedItems,
                 manifest = manifest,
                 secretKey = secretKey,
@@ -151,24 +188,22 @@ class MainViewModel @Inject constructor(
 
     fun cancelTransfer() {
         socketSenderEngine.cancel()
-        socketReceiverEngine.cancel()
-        _transferSessionState.value = TransferSessionState(status = TransferStatus.IDLE)
-        receiverQrPayload.value = null
+        socketReceiverEngine.stop()
+        connectionCoordinator.stopReceiverSession()
+        _transferSessionState.value = TransferSessionState(status = TransferStatus.CANCELLED)
     }
 
     private fun recordHistory(state: TransferSessionState) {
-        val newRecords = state.fileStates.map {
-            TransferRecord(
-                id = UUID.randomUUID().toString(),
-                fileName = it.name,
-                fileSize = it.size,
-                mimeType = "application/octet-stream",
-                sha256 = it.sha256Actual ?: it.sha256Expected,
-                isVerified = it.isVerified,
-                isIncoming = !state.isSender,
-                peerName = state.remoteDeviceName
-            )
-        }
-        historyRecords.value = newRecords + historyRecords.value
+        val newRecord = TransferRecord(
+            transferId = UUID.randomUUID().toString(),
+            peerName = "Completed Peer",
+            timestamp = System.currentTimeMillis(),
+            totalFiles = state.totalFiles,
+            totalBytes = state.totalBytes,
+            averageSpeedBytesPerSec = state.speedBytesPerSec,
+            isSender = true,
+            status = state.status
+        )
+        historyRecords.value = listOf(newRecord) + historyRecords.value
     }
 }

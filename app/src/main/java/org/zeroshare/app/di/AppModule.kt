@@ -10,6 +10,7 @@ import org.zeroshare.app.data.appextractor.AppPackageExtractor
 import org.zeroshare.app.data.connection.ConnectionCoordinator
 import org.zeroshare.app.data.connection.LocalHotspotManager
 import org.zeroshare.app.data.connection.NsdDiscoveryManager
+import org.zeroshare.app.data.connection.UdpBroadcastDiscovery
 import org.zeroshare.app.data.connection.WifiDirectManager
 import org.zeroshare.app.data.engine.SocketReceiverEngine
 import org.zeroshare.app.data.engine.SocketSenderEngine
@@ -66,13 +67,20 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideUdpBroadcastDiscovery(@ApplicationContext context: Context): UdpBroadcastDiscovery {
+        return UdpBroadcastDiscovery(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideConnectionCoordinator(
         @ApplicationContext context: Context,
         wifiDirectManager: WifiDirectManager,
         localHotspotManager: LocalHotspotManager,
-        nsdDiscoveryManager: NsdDiscoveryManager
+        nsdDiscoveryManager: NsdDiscoveryManager,
+        udpBroadcastDiscovery: UdpBroadcastDiscovery
     ): ConnectionCoordinator {
-        return ConnectionCoordinator(context, wifiDirectManager, localHotspotManager, nsdDiscoveryManager)
+        return ConnectionCoordinator(context, wifiDirectManager, localHotspotManager, nsdDiscoveryManager, udpBroadcastDiscovery)
     }
 
     @Provides

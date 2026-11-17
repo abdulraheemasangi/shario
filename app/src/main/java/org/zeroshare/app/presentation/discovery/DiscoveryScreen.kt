@@ -1,5 +1,6 @@
 package org.zeroshare.app.presentation.discovery
 
+import android.os.Build
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -30,7 +31,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -52,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.zeroshare.app.R
+import org.zeroshare.app.core.security.ConnectionType
 import org.zeroshare.app.core.security.QrConnectionPayload
 import org.zeroshare.app.core.security.QrPayloadCodec
 import org.zeroshare.app.domain.model.PeerDevice
@@ -65,10 +69,13 @@ import org.zeroshare.app.presentation.theme.IosCyan
 import org.zeroshare.app.presentation.theme.IosGreen
 import org.zeroshare.app.presentation.theme.IosIndigo
 import org.zeroshare.app.presentation.theme.IosMint
+import org.zeroshare.app.presentation.theme.IosOrange
 
 @Composable
 fun DiscoveryReceiverScreen(
     payload: QrConnectionPayload,
+    isWifiEnabled: Boolean = true,
+    onEnableWifi: () -> Unit = {},
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -135,7 +142,7 @@ fun DiscoveryReceiverScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Waiting for Sender to Connect",
+                            text = "Advertising on Wi-Fi Direct & Local Network",
                             fontSize = 12.sp,
                             color = IosMint,
                             fontWeight = FontWeight.Medium
@@ -144,11 +151,46 @@ fun DiscoveryReceiverScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!isWifiEnabled) {
+                GlassCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    backgroundColor = Color(0x28FF9500),
+                    borderWidth = 1.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WifiOff,
+                            contentDescription = null,
+                            tint = IosOrange,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Wi-Fi is currently disabled", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
+                            Text("Turn on Wi-Fi or Hotspot so nearby phones can detect this device.", fontSize = 11.sp, color = Color(0xDDEBEBF5))
+                        }
+                        Button(
+                            onClick = onEnableWifi,
+                            colors = ButtonDefaults.buttonColors(containerColor = IosOrange),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Enable", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
 
             // Instructions text
             Text(
-                text = "Show this QR code to the sender to pair and stream directly with zero quality loss.",
+                text = "Show this QR code to the sender or let them discover you in their nearby devices list.",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color(0xCCEBEBF5),
                     textAlign = TextAlign.Center,
@@ -157,7 +199,7 @@ fun DiscoveryReceiverScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Liquid Glass QR Container
             GlassCard(
@@ -174,7 +216,7 @@ fun DiscoveryReceiverScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(26.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Receiver Info Glass Card
             GlassCard(
@@ -190,39 +232,40 @@ fun DiscoveryReceiverScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(36.dp)
                                 .clip(CircleShape)
-                                .background(IosGreen.copy(alpha = 0.2f)),
+                                .background(IosBlue.copy(alpha = 0.2f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Wifi,
                                 contentDescription = null,
-                                tint = IosMint,
-                                modifier = Modifier.size(20.dp)
+                                tint = IosCyan,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = payload.receiverDeviceName,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = Color.White
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White,
+                                fontSize = 14.sp
                             )
                             Text(
-                                text = "Wi-Fi Direct / Local Hotspot",
+                                text = "Zero Quality Loss Mode",
                                 fontSize = 11.sp,
-                                color = Color(0x99EBEBF5)
+                                color = Color(0xAAEBEBF5)
                             )
                         }
                     }
 
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0x20FFFFFF))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0x1C007AFF))
+                            .border(1.dp, IosCyan.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -245,7 +288,6 @@ fun DiscoveryReceiverScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Cancel / Dismiss button
             Button(
                 onClick = onBack,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x22FFFFFF)),
@@ -269,16 +311,21 @@ fun DiscoveryReceiverScreen(
 @Composable
 fun DiscoverySenderScreen(
     discoveredPeers: List<PeerDevice>,
+    isWifiEnabled: Boolean = true,
+    isLocationEnabled: Boolean = true,
+    onEnableWifi: () -> Unit = {},
+    onEnableLocation: () -> Unit = {},
+    onRefreshScan: () -> Unit = {},
     onSelectPeer: (PeerDevice) -> Unit,
     onScanQrCode: () -> Unit,
     onBack: () -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "RadarPulse")
     val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.25f,
+        initialValue = 0.85f,
+        targetValue = 1.2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1600, easing = FastOutSlowInEasing),
+            animation = tween(1500, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "Scale"
@@ -320,71 +367,146 @@ fun DiscoverySenderScreen(
                 Spacer(modifier = Modifier.width(14.dp))
 
                 Text(
-                    text = stringResource(R.string.discovery_searching),
+                    text = "Discover Devices",
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         letterSpacing = (-0.3).sp
                     )
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0x18FFFFFF))
+                        .clickable { onRefreshScan() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh Scan",
+                        tint = IosCyan,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // Connectivity Warnings
+            if (!isWifiEnabled) {
+                Spacer(modifier = Modifier.height(10.dp))
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0x30FF9500),
+                    borderWidth = 1.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(imageVector = Icons.Default.WifiOff, contentDescription = null, tint = IosOrange, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Wi-Fi is Turned Off", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
+                            Text("Enable Wi-Fi to scan for nearby devices.", fontSize = 11.sp, color = Color(0xDDEBEBF5))
+                        }
+                        Button(
+                            onClick = onEnableWifi,
+                            colors = ButtonDefaults.buttonColors(containerColor = IosOrange),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Turn On", fontSize = 11.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            } else if (!isLocationEnabled && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                Spacer(modifier = Modifier.height(10.dp))
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0x30FF9500),
+                    borderWidth = 1.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = IosOrange, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Location Services Needed", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
+                            Text("Android requires Location on for Wi-Fi Direct discovery.", fontSize = 11.sp, color = Color(0xDDEBEBF5))
+                        }
+                        Button(
+                            onClick = onEnableLocation,
+                            colors = ButtonDefaults.buttonColors(containerColor = IosOrange),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Turn On", fontSize = 11.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
 
-            // Apple Liquid Glass Radar Visual
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Radar Scan Visual
             Box(
                 modifier = Modifier
-                    .size(170.dp)
+                    .size(150.dp)
                     .scale(pulseScale)
                     .clip(CircleShape)
                     .background(IosBlue.copy(alpha = 0.12f))
-                    .border(1.dp, IosBlue.copy(alpha = 0.25f), CircleShape),
+                    .border(1.dp, IosBlue.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(90.dp)
                         .clip(CircleShape)
-                        .background(IosBlue.copy(alpha = 0.22f))
-                        .border(1.dp, IosCyan.copy(alpha = 0.4f), CircleShape),
+                        .background(IosBlue.copy(alpha = 0.24f))
+                        .border(1.dp, IosCyan.copy(alpha = 0.5f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Wifi,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(44.dp)
+                        modifier = Modifier.size(38.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            // Scan QR Button
+            // Fast QR Scanner Button
             Button(
                 onClick = onScanQrCode,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(18.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(48.dp)
                     .clip(RoundedCornerShape(18.dp))
                     .background(Brush.linearGradient(listOf(IosBlue, IosIndigo)))
                     .border(1.dp, Color.White.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = stringResource(R.string.action_scan_qr),
+                        text = "Scan Receiver's QR Code",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         color = Color.White
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -398,9 +520,18 @@ fun DiscoverySenderScreen(
                         color = Color.White
                     )
                 )
+
+                if (discoveredPeers.isNotEmpty()) {
+                    Text(
+                        text = "Tap to stream",
+                        fontSize = 12.sp,
+                        color = IosCyan,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             if (discoveredPeers.isEmpty()) {
                 Box(
@@ -409,12 +540,26 @@ fun DiscoverySenderScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Searching for nearby Shario receivers...\nOr tap 'Scan QR Code' above.",
-                        color = Color(0x88EBEBF5),
-                        fontSize = 13.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    ) {
+                        Text(
+                            text = "Scanning for nearby Shario receivers...",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "1. Make sure the other phone has tapped 'Receive'.\n2. Both devices should have Wi-Fi turned ON or connect to the same Wi-Fi/Hotspot.\n3. Or tap 'Scan Receiver's QR Code' above for instant pairing.",
+                            color = Color(0x99EBEBF5),
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
@@ -433,35 +578,56 @@ fun DiscoverySenderScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
+                                    .padding(14.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(42.dp)
+                                        .size(44.dp)
                                         .clip(CircleShape)
-                                        .background(IosGreen.copy(alpha = 0.2f)),
+                                        .background(IosGreen.copy(alpha = 0.2f))
+                                        .border(1.dp, IosMint.copy(alpha = 0.4f), CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Wifi,
                                         contentDescription = null,
                                         tint = IosMint,
-                                        modifier = Modifier.size(20.dp)
+                                        modifier = Modifier.size(22.dp)
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(14.dp))
-                                Column {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = peer.name,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White,
                                         fontSize = 15.sp
                                     )
+                                    val connectionLabel = when (peer.connectionType) {
+                                        ConnectionType.WIFI_DIRECT -> "Wi-Fi Direct"
+                                        ConnectionType.SAME_NETWORK -> "Local Wi-Fi"
+                                        ConnectionType.LOCAL_HOTSPOT -> "Mobile Hotspot"
+                                    }
                                     Text(
-                                        text = "${peer.address} • ${peer.connectionType.name}",
+                                        text = "$connectionLabel • Ready to Transfer",
                                         fontSize = 12.sp,
-                                        color = Color(0xAAEBEBF5)
+                                        color = IosCyan,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(Brush.linearGradient(listOf(IosBlue, IosIndigo)))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = "Send",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }

@@ -1,33 +1,44 @@
 package org.zeroshare.app.data.connection
 
 import android.content.Context
-import android.os.Build
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import org.zeroshare.app.core.constants.ProtocolConstants
 import org.zeroshare.app.core.security.AesGcmCipher
 import org.zeroshare.app.core.security.ConnectionType
 import org.zeroshare.app.core.security.QrConnectionPayload
-import org.zeroshare.app.core.security.QrPayloadCodec
 import org.zeroshare.app.domain.model.PeerDevice
-import java.net.InetAddress
 import java.net.NetworkInterface
 
 class ConnectionCoordinator(
     private val context: Context,
-    private val wifiDirectManager: WifiDirectManager,
-    private val localHotspotManager: LocalHotspotManager,
-    private val nsdDiscoveryManager: NsdDiscoveryManager
+    val wifiDirectManager: WifiDirectManager,
+    val localHotspotManager: LocalHotspotManager,
+    val nsdDiscoveryManager: NsdDiscoveryManager,
+    val udpBroadcastDiscovery: UdpBroadcastDiscovery
 ) {
+    private val coordinatorScope = CoroutineScope(Dispatchers.IO)
+
+    fun isWifiEnabled(): Boolean = wifiDirectManager.isWifiEnabled()
+    fun isLocationEnabled(): Boolean = wifiDirectManager.isLocationEnabled()
 
     fun startDiscovery(): Flow<List<PeerDevice>> {
         val p2pFlow = wifiDirectManager.discoverPeers()
         val nsdFlow = nsdDiscoveryManager.discoverServices()
+        val udpFlow = udpBroadcastDiscovery.discoverPeers()
 
-        return combine(p2pFlow, nsdFlow) { p2pList, nsdList ->
+        return combine(p2pFlow, nsdFlow, udpFlow) { p2pList, nsdList, udpList ->
             val combined = mutableMapOf<String, PeerDevice>()
-            p2pList.forEach { combined[it.address] = it }
+            // Priority: UDP & NSD (direct IP addresses) then P2P
+            udpList.forEach { combined[it.address] = it }
             nsdList.forEach { combined[it.address] = it }
+            p2pList.forEach {
+                if (!combined.containsKey(it.address)) {
+                    combined[it.address] = it
+                }
+            }
             combined.values.toList()
         }
     }
@@ -40,9 +51,19 @@ class ConnectionCoordinator(
         val keyBase64 = AesGcmCipher.keyToBase64(ephemeralKey)
         val ipAddress = getLocalIpAddress() ?: "192.168.49.1"
 
-        if (connectionType == ConnectionType.SAME_NETWORK) {
-            nsdDiscoveryManager.registerService(ProtocolConstants.DEFAULT_PORT, deviceName)
-        }
+        // 1. Broadcast presence via UDP on local network / hotspot
+        udpBroadcastDiscovery.startAdvertising(deviceName, ProtocolConstants.DEFAULT_PORT, coordinatorScope)
+
+        // 2. Register mDNS / NSD service
+        nsdDiscoveryManager.registerService(ProtocolConstants.DEFAULT_PORT, deviceName)
+
+        // 3. Start Wi-Fi Direct presence if applicable
+        try {
+            wifiDirectManager.createGroup(
+                onSuccess = {},
+                onFailure = {}
+            )
+        } catch (ignored: Exception) {}
 
         return QrConnectionPayload(
             version = ProtocolConstants.PROTOCOL_VERSION,
@@ -54,7 +75,14 @@ class ConnectionCoordinator(
         )
     }
 
-    private fun getLocalIpAddress(): String? {
+    fun stopReceiverSession() {
+        udpBroadcastDiscovery.stopAdvertising()
+        try {
+            wifiDirectManager.removeGroup()
+        } catch (ignored: Exception) {}
+    }
+
+    fun getLocalIpAddress(): String? {
         try {
             val interfaces = NetworkInterface.getNetworkInterfaces()
             while (interfaces.hasMoreElements()) {

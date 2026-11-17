@@ -80,24 +80,23 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.3.0
-          name: "Shario v1.3.0 — Fast Sharing. Zero Hassle."
+          tag_name: v1.4.0
+          name: "Shario v1.4.0 — Fast Sharing. Zero Hassle."
           make_latest: true
           body: |
-            ### 🚀 Shario v1.3.0 — Fast Sharing. Zero Hassle.
+            ### 🚀 Shario v1.4.0 — Fast Sharing. Zero Hassle.
             
             100% Bit-for-Bit Original Phone-to-Phone File Sharing (Ad-Free & Lossless).
             
             #### 📥 Direct APK Download (Latest)
-            - **[⬇️ Download Shario.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.3.0/Shario.apk)** (Production Signed)
+            - **[⬇️ Download Shario.apk](https://github.com/abdulraheemasangi/shario/releases/download/v1.4.0/Shario.apk)** (Production Signed)
             
-            #### What's New in v1.3.0:
-            - **Official Shario APK Naming**: Downloads now save cleanly as `Shario.apk` instead of generic `app-release.apk`.
-            - **High-Resolution App Logo**: Added full multi-density launcher icons (`mipmap-mdpi` through `mipmap-xxxhdpi`) so the real Shario logo renders everywhere in downloads, package installers, and home screens.
-            - **Folder-Based Organization**: Group content by folder/album (Camera, Screenshots, WhatsApp, Downloads, Documents) instead of one unorganized list.
-            - **Comprehensive Files Discovery**: Recursively scans and displays all PDFs, Excel spreadsheets, Word documents, PowerPoints, and ZIP archives across all storage directories.
-            - **PhonePe/UPI-Speed QR Scanner**: Upgraded CameraX engine with Google ML Kit Barcode Scanning for instant (<30ms) recognition at any angle with torch toggle and haptic vibration feedback.
-            - **Seamless Automatic Permissions**: Automatic background permission acquisition without repetitive nagging cards.
+            #### What's New in v1.4.0:
+            - **Fixed "App Not Installed" Failure**: Added fixed cryptographic release keystore and relaxed strict hardware feature requirements so APK updates and installs smoothly on every Android phone.
+            - **Triple-Engine Device Scanning**: Built multi-tiered discovery combining UDP broadcast beacons (`255.255.255.255:8989`), local network mDNS/NSD, and Wi-Fi Direct P2P so nearby phones are discovered in real time.
+            - **Receiver Live Advertising**: Receiver now actively broadcasts presence across Wi-Fi Direct and local network while listening on sockets.
+            - **Connectivity Diagnostics & System Actions**: Automatic checks for Wi-Fi toggle and Location services (Android 10-12 P2P requirement) with 1-tap enable buttons.
+            - **100% Zero-Loss Binary Streaming**: Unmodified MediaStore streams with `setRequireOriginal` preserving GPS EXIF and SHA-256 verification.
           files: |
             app/build/outputs/apk/release/Shario.apk
             app/build/outputs/apk/debug/Shario-debug.apk

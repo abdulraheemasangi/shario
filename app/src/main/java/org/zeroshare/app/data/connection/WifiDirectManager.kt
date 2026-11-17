@@ -5,12 +5,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.NetworkInfo
+import android.location.LocationManager
+import android.net.wifi.WifiManager
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pDeviceList
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
+import android.os.Build
 import android.os.Looper
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +25,22 @@ class WifiDirectManager(private val context: Context) {
     private val p2pManager: WifiP2pManager? = context.getSystemService(Context.WIFI_P2P_SERVICE) as? WifiP2pManager
     private val p2pChannel: WifiP2pManager.Channel? = p2pManager?.initialize(context, Looper.getMainLooper(), null)
 
+    fun isWifiEnabled(): Boolean {
+        val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+        return wm?.isWifiEnabled == true
+    }
+
+    fun isLocationEnabled(): Boolean {
+        val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            lm?.isLocationEnabled == true
+        } else {
+            @Suppress("DEPRECATION")
+            lm?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true ||
+            lm?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
+        }
+    }
+
     @SuppressLint("MissingPermission")
     fun discoverPeers(): Flow<List<PeerDevice>> = callbackFlow {
         if (p2pManager == null || p2pChannel == null) {
@@ -34,7 +52,7 @@ class WifiDirectManager(private val context: Context) {
         val peerListListener = WifiP2pManager.PeerListListener { peerList: WifiP2pDeviceList ->
             val peers = peerList.deviceList.map { device ->
                 PeerDevice(
-                    id = device.deviceAddress,
+                    id = "p2p_${device.deviceAddress}",
                     name = device.deviceName.ifBlank { "Direct Peer" },
                     address = device.deviceAddress,
                     connectionType = ConnectionType.WIFI_DIRECT,
@@ -57,9 +75,16 @@ class WifiDirectManager(private val context: Context) {
         val intentFilter = IntentFilter().apply {
             addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
             addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
+            addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
         }
 
-        context.registerReceiver(receiver, intentFilter)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(receiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                context.registerReceiver(receiver, intentFilter)
+            }
+        } catch (ignored: Exception) {}
 
         p2pManager.discoverPeers(p2pChannel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {}
@@ -93,7 +118,7 @@ class WifiDirectManager(private val context: Context) {
     @SuppressLint("MissingPermission")
     fun connectToPeer(
         deviceAddress: String,
-        onConnected: (info: WifiP2pInfo) -> Unit,
+        onConnected: (ipAddress: String) -> Unit,
         onFailure: (reason: Int) -> Unit
     ) {
         if (p2pManager == null || p2pChannel == null) {
@@ -106,10 +131,10 @@ class WifiDirectManager(private val context: Context) {
 
         p2pManager.connect(p2pChannel, config, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                // Monitor connection info
                 p2pManager.requestConnectionInfo(p2pChannel) { info ->
-                    if (info.groupFormed) {
-                        onConnected(info)
+                    if (info != null && info.groupFormed) {
+                        val host = info.groupOwnerAddress?.hostAddress ?: "192.168.49.1"
+                        onConnected(host)
                     }
                 }
             }

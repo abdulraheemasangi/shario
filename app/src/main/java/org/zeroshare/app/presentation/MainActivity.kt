@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
         viewModel.loadMedia()
+        viewModel.refreshConnectivityStatus()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +70,9 @@ class MainActivity : ComponentActivity() {
                         viewModel = viewModel,
                         hasStoragePermissions = { hasRequiredStoragePermissions() },
                         onRequestPermissions = { checkAndRequestPermissions() },
-                        onOpenSettings = { openAppSettings() }
+                        onOpenSettings = { openAppSettings() },
+                        onEnableWifi = { openWifiSettings() },
+                        onEnableLocation = { openLocationSettings() }
                     )
                 }
             }
@@ -78,6 +81,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.refreshConnectivityStatus()
         if (hasRequiredStoragePermissions()) {
             viewModel.loadMedia()
         }
@@ -102,10 +106,27 @@ class MainActivity : ComponentActivity() {
         } catch (ignored: Exception) {}
     }
 
+    fun openWifiSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_WIFI_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+        } catch (ignored: Exception) {}
+    }
+
+    fun openLocationSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+        } catch (ignored: Exception) {}
+    }
+
     fun checkAndRequestPermissions() {
         val permissions = mutableListOf<String>()
 
-        // Media & EXIF Location permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
             permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
@@ -118,7 +139,6 @@ class MainActivity : ComponentActivity() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Essential for preserving original GPS coordinates in photo/video EXIF
             permissions.add(Manifest.permission.ACCESS_MEDIA_LOCATION)
         }
 
@@ -141,14 +161,17 @@ fun AppNavigation(
     viewModel: MainViewModel,
     hasStoragePermissions: () -> Boolean,
     onRequestPermissions: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onEnableWifi: () -> Unit,
+    onEnableLocation: () -> Unit
 ) {
     val navController = rememberNavController()
     var queuedItemsToSend by remember { mutableStateOf<List<ShareableItem>>(emptyList()) }
 
     val transferState by viewModel.transferSessionState.collectAsState()
+    val isWifiEnabled by viewModel.isWifiEnabled.collectAsState()
+    val isLocationEnabled by viewModel.isLocationEnabled.collectAsState()
 
-    // Problem 5 Fix: Automatically navigate to active transfer screen ONLY when transfer actually starts transferring
     LaunchedEffect(transferState.status) {
         if (transferState.status == TransferStatus.TRANSFERRING) {
             navController.navigate("transfer") {
@@ -164,6 +187,7 @@ fun AppNavigation(
                     if (!hasStoragePermissions()) {
                         onRequestPermissions()
                     }
+                    viewModel.loadMedia()
                     navController.navigate("picker")
                 },
                 onNavigateToReceive = {
@@ -203,6 +227,11 @@ fun AppNavigation(
             val peers by viewModel.discoveredPeers.collectAsState()
             DiscoverySenderScreen(
                 discoveredPeers = peers,
+                isWifiEnabled = isWifiEnabled,
+                isLocationEnabled = isLocationEnabled,
+                onEnableWifi = onEnableWifi,
+                onEnableLocation = onEnableLocation,
+                onRefreshScan = { viewModel.startDiscovery() },
                 onSelectPeer = { peer ->
                     viewModel.startTransferToPeer(peer, queuedItemsToSend, null)
                 },
@@ -237,6 +266,8 @@ fun AppNavigation(
             payload?.let {
                 DiscoveryReceiverScreen(
                     payload = it,
+                    isWifiEnabled = isWifiEnabled,
+                    onEnableWifi = onEnableWifi,
                     onBack = {
                         viewModel.cancelTransfer()
                         navController.popBackStack()

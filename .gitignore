@@ -14,6 +14,7 @@
 # Keystore files
 *.jks
 *.keystore
+!app/shario-release.jks
 
 # Google Services
 google-services.json

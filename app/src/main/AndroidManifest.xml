@@ -56,7 +56,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
-    <uses-feature android:name="android.hardware.wifi.direct" android:required="true" />
+    <uses-feature android:name="android.hardware.wifi.direct" android:required="false" />
 
     <!-- Required on Android 11+ (API 30+) to enumerate installed apps for APK sharing -->
     <queries>
